@@ -1,0 +1,10 @@
+{
+    "name": "simplelog",
+    "module": "./src/logger.ts",
+    "main": "./src/logger.ts",
+    "type": "module",
+    "devDependencies": {
+        "@types/bun": "latest"
+    },
+    "dependencies": {}
+}
