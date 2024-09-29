@@ -1,5 +1,5 @@
 import console from "node:console";
-import { writeFileSync, appendFileSync } from "node:fs";
+import { appendFileSync } from "node:fs";
 const LOG_LEVEL = {
     DEBUG: "DEBUG",
     INFO: "INFO",
@@ -21,21 +21,30 @@ type LoggerOptions = {
     logFilePath: string;
     logLevelThreshold: LogLevel; // Minimum log level for logging
 };
-const LOG_LEVEL_Colors: Record<LogLevel, number> = {
+const LOG_LEVEL_COLORS: Record<LogLevel, number> = {
     [LOG_LEVEL.DEBUG]: 36, // Cyan
     [LOG_LEVEL.INFO]: 32, // Green
     [LOG_LEVEL.WARN]: 33, // Yellow
     [LOG_LEVEL.ERROR]: 31, // Red
 };
 
+/**
+ * Logger class for logging messages with different log levels.
+ */
 export class Logger {
     private name: string;
-    // eslint-disable-next-line no-use-before-define
     private parent?: Logger;
     private performanceTests: Record<string, number> = {};
     private writeToFile: boolean;
     private logFilePath: string | undefined;
     private logLevelThreshold: LogLevel;
+
+    /**
+     * Creates an instance of Logger.
+     * @param {string} name - The name of the logger.
+     * @param {Logger} [parent] - The parent logger.
+     * @param {LoggerOptions} [options] - Logger options.
+     */
     constructor(
         name: string,
         parent?: Logger,
@@ -55,12 +64,19 @@ export class Logger {
         this.logLevelThreshold = options.logLevelThreshold;
     }
 
-    // Start a performance test with a given label
+    /**
+     * Starts a performance benchmark with a given label.
+     * @param {string} label - The label for the performance test.
+     */
     startPerformanceBenchmark(label: string): void {
         this.performanceTests[label] = Date.now();
     }
 
-    // End a performance test with a given label and log the elapsed time
+    /**
+     * Ends a performance benchmark with a given label and logs the elapsed time.
+     * @param {string} label - The label for the performance test.
+     * @param {string} message - The message to log with the elapsed time.
+     */
     endPerformanceBenchmark(label: string, message: string): void {
         const startTime = this.performanceTests[label];
         if (startTime !== undefined) {
@@ -74,23 +90,50 @@ export class Logger {
             );
         }
     }
+
+    /**
+     * Logs a debug message.
+     * @param {string} message - The message to log.
+     * @param {...unknown[]} args - Additional arguments to log.
+     */
     debug(message: string, ...args: unknown[]): void {
         this.log(LOG_LEVEL.DEBUG, message, args);
     }
 
+    /**
+     * Logs an info message.
+     * @param {string} message - The message to log.
+     * @param {...unknown[]} args - Additional arguments to log.
+     */
     info(message: string, ...args: unknown[]): void {
         this.log(LOG_LEVEL.INFO, message, args);
     }
 
+    /**
+     * Logs a warning message.
+     * @param {string} message - The message to log.
+     * @param {...unknown[]} args - Additional arguments to log.
+     */
     warn(message: string, ...args: unknown[]): void {
         this.log(LOG_LEVEL.WARN, message, args);
     }
 
+    /**
+     * Logs an error message.
+     * @param {string} message - The message to log.
+     * @param {...unknown[]} args - Additional arguments to log.
+     */
     error(message: string, ...args: unknown[]): void {
         const stackTrace = new Error().stack || "";
         this.log(LOG_LEVEL.ERROR, message, args, stackTrace);
     }
-    // Assert function: checks condition and logs error if false
+
+    /**
+     * Asserts a condition and logs an error if the condition is false.
+     * @param {boolean} condition - The condition to check.
+     * @param {string} message - The message to log if the condition is false.
+     * @param {...unknown[]} args - Additional arguments to log.
+     */
     assert(condition: boolean, message: string, ...args: unknown[]): void {
         if (!condition) {
             const stackTrace = new Error().stack || "";
@@ -103,7 +146,12 @@ export class Logger {
         }
     }
 
-    // Method to create a child logger
+    /**
+     * Creates a child logger.
+     * @param {string} name - The name of the child logger.
+     * @param {Logger} [otherLogger] - Another logger to merge with.
+     * @returns {Logger} The child logger.
+     */
     createChildLogger(name: string, otherLogger?: Logger): Logger {
         const mergedParent = otherLogger
             ? this.mergeLoggers(otherLogger)
@@ -111,17 +159,31 @@ export class Logger {
         return new Logger(name, mergedParent);
     }
 
-    // Merges two loggers by nesting them
+    /**
+     * Merges two loggers by nesting them.
+     * @param {Logger} otherLogger - The other logger to merge with.
+     * @returns {Logger} The merged logger.
+     */
     private mergeLoggers(otherLogger: Logger): Logger {
-        // Create a new logger that takes 'otherLogger' as the parent of 'this' logger
         return new Logger(this.name, otherLogger);
     }
 
+    /**
+     * Colorizes a text string.
+     * @param {string} text - The text to colorize.
+     * @param {number} colorCode - The color code to use.
+     * @returns {string} The colorized text.
+     */
     private colorize(text: string, colorCode: number): string {
         const resetCode = 0;
         return `\u001b[${colorCode}m${text}\u001b[${resetCode}m`;
     }
 
+    /**
+     * Minimizes a stack trace by filtering out lines containing "node_modules".
+     * @param {string} stackTrace - The stack trace to minimize.
+     * @returns {string} The minimized stack trace.
+     */
     private minimizeStackTrace(stackTrace: string): string {
         const lines = stackTrace.split("\n");
         if (lines.length <= 2) {
@@ -133,30 +195,39 @@ export class Logger {
         return filteredLines.join("\n");
     }
 
+    /**
+     * Stringifies an array of arguments.
+     * @param {unknown[]} args - The arguments to stringify.
+     * @returns {string[]} The stringified arguments.
+     */
     private stringifyArgs(args: unknown[]): string[] {
         return args.map((arg) => {
             if (typeof arg === "object") {
                 return JSON.stringify(arg, null, 2);
             }
-            // @ts-ignore
             return arg.toString();
         });
     }
 
+    /**
+     * Gets the full logger name, including parent loggers.
+     * @param {LogLevel} level - The log level.
+     * @returns {string} The full logger name.
+     */
     private getFullLoggerName(level: LogLevel): string {
-        const LOG_LEVEL_Colors: Record<LogLevel, number> = {
-            [LOG_LEVEL.DEBUG]: 36, // Cyan
-            [LOG_LEVEL.INFO]: 32, // Green
-            [LOG_LEVEL.WARN]: 33, // Yellow
-            [LOG_LEVEL.ERROR]: 31, // Red
-        };
-
         const fullLoggerName = this.parent
             ? `${this.parent.getFullLoggerName(level)} -> ${this.name}`
             : this.name;
-        return this.colorize(fullLoggerName, LOG_LEVEL_Colors[level]);
+        return this.colorize(fullLoggerName, LOG_LEVEL_COLORS[level]);
     }
 
+    /**
+     * Logs a message with a given log level.
+     * @param {LogLevel} level - The log level.
+     * @param {string} message - The message to log.
+     * @param {unknown[]} [args=[]] - Additional arguments to log.
+     * @param {string} [stackTrace] - The stack trace to log.
+     */
     private log(
         level: LogLevel,
         message: string,
@@ -169,15 +240,15 @@ export class Logger {
         const fullLoggerName = this.getFullLoggerName(level);
         const LOG_LEVELText = this.colorize(
             `[${level}]`,
-            LOG_LEVEL_Colors[level]
+            LOG_LEVEL_COLORS[level]
         );
         const timestamp = new Date().toISOString();
         const logMessage = `${this.colorize(
             timestamp,
-            LOG_LEVEL_Colors[level]
+            LOG_LEVEL_COLORS[level]
         )} ${LOG_LEVELText} [${fullLoggerName}] - ${this.colorize(
             message,
-            LOG_LEVEL_Colors[level]
+            LOG_LEVEL_COLORS[level]
         )}`;
         if (this.writeToFile) {
             this.writeLogToFile(logMessage);
@@ -191,16 +262,27 @@ export class Logger {
                 this.writeLogToFile(minimizedStackTrace);
             }
             console.error(
-                this.colorize(minimizedStackTrace, LOG_LEVEL_Colors[level])
+                this.colorize(minimizedStackTrace, LOG_LEVEL_COLORS[level])
             );
         }
     }
+
+    /**
+     * Checks if a message should be logged based on the log level threshold.
+     * @param {LogLevel} level - The log level.
+     * @returns {boolean} True if the message should be logged, false otherwise.
+     */
     private shouldLog(level: LogLevel): boolean {
         return (
             LOG_LEVEL_PRIORITY[level] >=
             LOG_LEVEL_PRIORITY[this.logLevelThreshold]
         );
     }
+
+    /**
+     * Writes a log message to a file.
+     * @param {string} logMessage - The log message to write.
+     */
     private writeLogToFile(logMessage: string) {
         if (this.writeToFile) {
             appendFileSync(this.logFilePath, logMessage + "\n", "utf-8");
