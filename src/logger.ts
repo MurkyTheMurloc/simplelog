@@ -1,5 +1,5 @@
 import console from "node:console";
-
+import { writeFileSync, appendFileSync } from "node:fs";
 const LOG_LEVEL = {
     DEBUG: "DEBUG",
     INFO: "INFO",
@@ -9,15 +9,50 @@ const LOG_LEVEL = {
 
 type LogLevel = keyof typeof LOG_LEVEL;
 
+const LOG_LEVEL_PRIORITY = {
+    DEBUG: 1,
+    INFO: 2,
+    WARN: 3,
+    ERROR: 4,
+} as const;
+
+type LoggerOptions = {
+    writeToFile: boolean;
+    logFilePath: string;
+    logLevelThreshold: LogLevel; // Minimum log level for logging
+};
+const LOG_LEVEL_Colors: Record<LogLevel, number> = {
+    [LOG_LEVEL.DEBUG]: 36, // Cyan
+    [LOG_LEVEL.INFO]: 32, // Green
+    [LOG_LEVEL.WARN]: 33, // Yellow
+    [LOG_LEVEL.ERROR]: 31, // Red
+};
+
 export class Logger {
     private name: string;
     // eslint-disable-next-line no-use-before-define
     private parent?: Logger;
     private performanceTests: Record<string, number> = {};
-
-    constructor(name: string, parent?: Logger) {
+    private writeToFile: boolean;
+    private logFilePath: string | undefined;
+    private logLevelThreshold: LogLevel;
+    constructor(
+        name: string,
+        parent?: Logger,
+        options: LoggerOptions = {
+            writeToFile: false,
+            logFilePath: `logs/${name}.log`,
+            logLevelThreshold: "DEBUG",
+        }
+    ) {
         this.name = name;
         this.parent = parent;
+        if (options.writeToFile) {
+            this.logFilePath = options.logFilePath;
+        }
+
+        this.writeToFile = options.writeToFile;
+        this.logLevelThreshold = options.logLevelThreshold;
     }
 
     // Start a performance test with a given label
@@ -128,13 +163,9 @@ export class Logger {
         args: unknown[] = [],
         stackTrace?: string
     ): void {
-        const LOG_LEVEL_Colors: Record<LogLevel, number> = {
-            [LOG_LEVEL.DEBUG]: 36, // Cyan
-            [LOG_LEVEL.INFO]: 32, // Green
-            [LOG_LEVEL.WARN]: 33, // Yellow
-            [LOG_LEVEL.ERROR]: 31, // Red
-        };
-
+        if (!this.shouldLog(level)) {
+            return; // Skip logging if the level is below the threshold
+        }
         const fullLoggerName = this.getFullLoggerName(level);
         const LOG_LEVELText = this.colorize(
             `[${level}]`,
@@ -148,15 +179,31 @@ export class Logger {
             message,
             LOG_LEVEL_Colors[level]
         )}`;
-
+        if (this.writeToFile) {
+            this.writeLogToFile(logMessage);
+        }
         const stringifiedArgs = this.stringifyArgs(args);
         console.log(logMessage, ...stringifiedArgs);
 
         if (stackTrace) {
             const minimizedStackTrace = this.minimizeStackTrace(stackTrace);
+            if (this.writeToFile) {
+                this.writeLogToFile(minimizedStackTrace);
+            }
             console.error(
                 this.colorize(minimizedStackTrace, LOG_LEVEL_Colors[level])
             );
+        }
+    }
+    private shouldLog(level: LogLevel): boolean {
+        return (
+            LOG_LEVEL_PRIORITY[level] >=
+            LOG_LEVEL_PRIORITY[this.logLevelThreshold]
+        );
+    }
+    private writeLogToFile(logMessage: string) {
+        if (this.writeToFile) {
+            appendFileSync(this.logFilePath, logMessage + "\n", "utf-8");
         }
     }
 }
