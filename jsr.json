@@ -1,5 +1,5 @@
 {
-    "name": "@utils/simplelog",
+    "name": "@logger/simplelog",
     "version": "0.1.0",
     "description": "A simple wrapper around console to make logging enjoyable again",
     "exports": "./src/logger.ts",
