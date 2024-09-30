@@ -2,5 +2,6 @@
     "name": "@utils/simplelog",
     "version": "0.1.0",
     "description": "A simple wrapper around console to make logging enjoyable again",
-    "exports": "./src/logger.ts"
+    "exports": "./src/logger.ts",
+    "license": "MIT"
 }
