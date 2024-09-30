@@ -56,9 +56,8 @@ export class Logger {
     ) {
         this.name = name;
         this.parent = parent;
-        if (options.writeToFile) {
-            this.logFilePath = options.logFilePath;
-        }
+
+        this.logFilePath = options.logFilePath;
 
         this.writeToFile = options.writeToFile;
         this.logLevelThreshold = options.logLevelThreshold;
