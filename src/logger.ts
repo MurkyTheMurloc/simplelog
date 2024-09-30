@@ -246,7 +246,7 @@ export class Logger {
         const logMessage = `${this.colorize(
             timestamp,
             LOG_LEVEL_COLORS[level]
-        )} ${LOG_LEVELText} [${fullLoggerName}] - ${this.colorize(
+        )} ${LOG_LEVELText} [${this.colorize(fullLoggerName, LOG_LEVEL_COLORS[level])}] - ${this.colorize(
             message,
             LOG_LEVEL_COLORS[level]
         )}`;
