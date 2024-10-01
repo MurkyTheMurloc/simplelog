@@ -1,8 +1,8 @@
 {
     "name": "@logger/simplelog",
+    "private": false,
     "main": "./dist/logger.js",
     "module": "./dist/logger.js",
-    "private": false,
     "types": "./src/logger.d.ts",
     "exports": {
         ".": {
