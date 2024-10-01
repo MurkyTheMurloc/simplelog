@@ -2,6 +2,7 @@
     "name": "@logger/simplelog",
     "main": "./dist/logger.js",
     "module": "./dist/logger.js",
+    "private": false,
     "types": "./src/logger.d.ts",
     "exports": {
         ".": {
