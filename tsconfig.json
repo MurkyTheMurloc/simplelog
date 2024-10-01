@@ -7,11 +7,12 @@
         "target": "ES2022",
         "moduleDetection": "force",
         "allowJs": true,
+        "declaration": true,
 
         // Bundler mode
-        "allowImportingTsExtensions": true,
+        "allowImportingTsExtensions": false,
         "verbatimModuleSyntax": true,
-        "noEmit": true,
+        "noEmit": false,
 
         // Best practices
         "strict": true,
@@ -21,6 +22,11 @@
         // Some stricter flags (disabled by default)
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "noPropertyAccessFromIndexSignature": false
-    }
+        "noPropertyAccessFromIndexSignature": false,
+        "baseUrl": ".",
+        "outDir": "./dist",
+        "declarationMap": true
+    },
+    "include": ["src/logger.ts"],
+    "exclude": ["node_modules/*"]
 }

@@ -1,7 +1,22 @@
 {
-    "name": "simplelog",
-    "module": "./src/logger.ts",
-    "main": "./src/logger.ts",
+    "name": "@logger/simplelog",
+    "main": "./dist/logger.js",
+    "module": "./dist/logger.js",
+    "types": "./src/logger.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/logger.js",
+            "require": "./dist/logger.js",
+            "types": "./src/logger.ts"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc --outDir dist",
+        "clean": "rm -rf dist"
+    },
     "version": "0.1.0",
     "author": {
         "name": "MurkyTheMurloc"

@@ -36,7 +36,7 @@ export class Logger {
     private parent?: Logger;
     private performanceTests: Record<string, number> = {};
     private writeToFile: boolean;
-    private logFilePath: string | undefined;
+    private logFilePath: string;
     private logLevelThreshold: LogLevel;
 
     /**
@@ -200,11 +200,11 @@ export class Logger {
      * @returns {string[]} The stringified arguments.
      */
     private stringifyArgs(args: unknown[]): string[] {
-        return args.map((arg) => {
+        return args.map((arg: unknown) => {
             if (typeof arg === "object") {
                 return JSON.stringify(arg, null, 2);
             }
-            return arg.toString();
+            return arg!.toString();
         });
     }
 
