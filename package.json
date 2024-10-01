@@ -1,5 +1,5 @@
 {
-    "name": "simplelog",
+    "name": "simplelogger",
     "private": false,
     "main": "./dist/logger.js",
     "module": "./dist/logger.js",
