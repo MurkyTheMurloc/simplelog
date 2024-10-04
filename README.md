@@ -1,6 +1,6 @@
 # SimpleLog
 
-`SimpleLog` is a lightweight and flexible logging utility for Node.js applications. It provides various log levels, performance benchmarking, and the ability to log messages to both the console and a file.
+`SimpleLog` is a lightweight and flexible logging utility for Node.js, Deno or Bun applications. It provides various log levels, performance benchmarking, and the ability to log messages to both the console and a file.
 
 ## Features
 
@@ -13,15 +13,19 @@
 ## Installation
 
 ```bash
-npm install simplelog
+npm install simplelog-ts
 ```
+
+deno add jsr:@logger/simplelog
+
+npx jsr add @logger/simplelog
 
 ## Usage
 
 ### Importing and Creating a Logger
 
 ```typescript
-import { Logger } from "simplelog";
+import { Logger } from "simplelog-ts";
 
 const logger = new Logger("MyLogger", undefined, {
     writeToFile: true,
@@ -76,7 +80,7 @@ childLogger.info("This is a message from the child logger");
 ## Example
 
 ```typescript
-import { Logger } from "simplelog";
+import { Logger } from "simplelog-ts";
 
 const logger = new Logger("AppLogger", undefined, {
     writeToFile: true,
